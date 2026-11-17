@@ -15,9 +15,10 @@ services:
       - ../core-api/src:/app/src
   chat:
     build:
-      context: ../chat-service
+      context: ..
+      dockerfile: chat-service/Dockerfile
       target: build
-    command: ["npm", "run", "start:dev"]
+    command: ["npm", "run", "dev"]
     volumes:
       - ../chat-service/src:/app/src
   voice:

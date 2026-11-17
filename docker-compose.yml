@@ -216,7 +216,9 @@ services:
       - zenuxs
 
   chat:
-    build: ../chat-service
+    build:
+      context: ..
+      dockerfile: chat-service/Dockerfile
     profiles: [chat]
     container_name: chat
     ports:
