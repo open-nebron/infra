@@ -1,0 +1,288 @@
+services:
+  mongo:
+    image: mongo:7
+    profiles: [infra]
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    command: [--bind_ip_all]
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --quiet --eval \"db.adminCommand('ping').ok\" || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    restart: unless-stopped
+    networks:
+      - zenuxs
+
+  mongo-init:
+    image: mongo:7
+    profiles: [infra]
+    container_name: mongo-init
+    depends_on:
+      mongo:
+        condition: service_healthy
+    volumes:
+      - ./scripts/init-mongo.js:/docker-entrypoint-initdb.d/init.js:ro
+    command: mongosh mongodb://mongo:27017/ --file /docker-entrypoint-initdb.d/init.js
+    restart: "no"
+    networks:
+      - zenuxs
+
+  redis:
+    image: redis:7-alpine
+    profiles: [infra]
+    container_name: redis
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep -q PONG || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 3s
+    restart: unless-stopped
+    networks:
+      - zenuxs
+
+  scylla:
+    image: scylladb/scylla:5.4
+    profiles: [infra]
+    container_name: scylla
+    command: --smp 1 --memory 750M --overprovisioned 1 --developer-mode 1
+    ports:
+      - "9042:9042"
+    volumes:
+      - scylla_data:/var/lib/scylla
+    healthcheck:
+      test: ["CMD-SHELL", "nodetool status 2>/dev/null | grep -q '^UN'"]
+      interval: 15s
+      timeout: 10s
+      retries: 20
+      start_period: 60s
+    restart: unless-stopped
+    networks:
+      - zenuxs
+
+  scylla-init:
+    image: scylladb/scylla:5.4
+    profiles: [infra]
+    container_name: scylla-init
+    depends_on:
+      scylla:
+        condition: service_healthy
+    volumes:
+      - ./scripts/init-scylla.cql:/init.cql:ro
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["until cqlsh scylla -f /init.cql; do echo 'Waiting for Scylla CQL port 9042...'; sleep 2; done"]
+    restart: "no"
+    networks:
+      - zenuxs
+
+  minio:
+    image: minio/minio:latest
+    profiles: [infra]
+    container_name: minio
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9000/minio/health/live || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    restart: unless-stopped
+    networks:
+      - zenuxs
+
+  minio-init:
+    image: minio/mc:latest
+    profiles: [infra]
+    container_name: minio-init
+    depends_on:
+      minio:
+        condition: service_healthy
+    volumes:
+      - ./scripts/init-minio.sh:/init.sh:ro
+    entrypoint: ["/bin/sh", "/init.sh"]
+    environment:
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      R2_BUCKET: ${R2_BUCKET:-zenuxs-media}
+    restart: "no"
+    networks:
+      - zenuxs
+
+  livekit:
+    image: livekit/livekit-server:latest
+    profiles: [infra]
+    container_name: livekit
+    command: --dev --bind 0.0.0.0
+    ports:
+      - "7880:7880"
+      - "7881:7881"
+      - "50000-50050:50000-50050/udp"
+    environment:
+      LIVEKIT_KEYS: "${LIVEKIT_API_KEY:-devkey}: ${LIVEKIT_API_SECRET:-secret}"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:7880/ >/dev/null 2>&1 || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 3s
+    restart: unless-stopped
+    networks:
+      - zenuxs
+
+  auth:
+    build: ../auth-service
+    profiles: [auth]
+    container_name: auth
+    ports:
+      - "4001:4001"
+    environment:
+      PORT: 4001
+      MONGO_URL: mongodb://mongo:27017/zenuxs_auth
+      REDIS_URL: redis://redis:6379
+      NODE_ENV: ${NODE_ENV:-development}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:8081}
+      ACCESS_TOKEN_TTL_SECONDS: ${JWT_TTL_SECONDS:-900}
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      mongo-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:4001/health >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    restart: unless-stopped
+    networks:
+      - zenuxs
+
+  core:
+    build: ../core-api
+    profiles: [core]
+    container_name: core
+    ports:
+      - "4002:4002"
+    environment:
+      PORT: 4002
+      MONGO_URL: mongodb://mongo:27017/zenuxs_core
+      REDIS_URL: redis://redis:6379
+      AUTH_JWKS_URL: http://auth:4001/.well-known/jwks.json
+      R2_ENDPOINT: http://minio:9000
+      R2_BUCKET: ${R2_BUCKET:-zenuxs-media}
+      R2_ACCESS_KEY_ID: ${MINIO_ROOT_USER:-minioadmin}
+      R2_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      R2_PUBLIC_BASE_URL: http://localhost:9000/${R2_BUCKET:-zenuxs-media}
+      NODE_ENV: ${NODE_ENV:-development}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:8081}
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      auth:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:4002/health >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    restart: unless-stopped
+    networks:
+      - zenuxs
+
+  chat:
+    build: ../chat-service
+    profiles: [chat]
+    container_name: chat
+    ports:
+      - "4003:4003"
+    environment:
+      PORT: 4003
+      SCYLLA_HOSTS: scylla:9042
+      SCYLLA_KEYSPACE: zenuxs
+      REDIS_URL: redis://redis:6379
+      AUTH_JWKS_URL: http://auth:4001/.well-known/jwks.json
+      EVENTS_STREAM: zenuxs.events
+      NODE_ENV: ${NODE_ENV:-development}
+    depends_on:
+      scylla:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      auth:
+        condition: service_healthy
+      scylla-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:4003/health >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    restart: unless-stopped
+    networks:
+      - zenuxs
+
+  voice:
+    build: ../voice-service
+    profiles: [voice]
+    container_name: voice
+    ports:
+      - "4004:4004"
+    environment:
+      PORT: 4004
+      LIVEKIT_URL: ws://livekit:7880
+      LIVEKIT_API_KEY: ${LIVEKIT_API_KEY:-devkey}
+      LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET:-secret}
+      AUTH_JWKS_URL: http://auth:4001/.well-known/jwks.json
+      REDIS_URL: redis://redis:6379
+      NODE_ENV: ${NODE_ENV:-development}
+    depends_on:
+      livekit:
+        condition: service_healthy
+      auth:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:4004/health >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    restart: unless-stopped
+    networks:
+      - zenuxs
+
+volumes:
+  mongo_data:
+  scylla_data:
+  redis_data:
+  minio_data:
+
+networks:
+  zenuxs:
+    driver: bridge

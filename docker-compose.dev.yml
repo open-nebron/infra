@@ -1,0 +1,29 @@
+services:
+  auth:
+    build:
+      context: ../auth-service
+      target: ${AUTH_DEV_TARGET:-builder}
+    command: ["sh", "-c", "npm run start:dev 2>/dev/null || npm run dev"]
+    volumes:
+      - ../auth-service/src:/app/src
+  core:
+    build:
+      context: ../core-api
+      target: ${CORE_DEV_TARGET:-builder}
+    command: ["sh", "-c", "npm run start:dev 2>/dev/null || npm run dev"]
+    volumes:
+      - ../core-api/src:/app/src
+  chat:
+    build:
+      context: ../chat-service
+      target: build
+    command: ["npm", "run", "start:dev"]
+    volumes:
+      - ../chat-service/src:/app/src
+  voice:
+    build:
+      context: ../voice-service
+      target: build
+    command: ["npm", "run", "start:dev"]
+    volumes:
+      - ../voice-service/src:/app/src
