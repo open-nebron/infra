@@ -166,7 +166,7 @@ All service endpoints and host ports are documented in detail in [docs/ports.md]
 2. **Asymmetric Key Verification (JWKS)**:
    `auth-service` generates RS256 RSA keypairs and exposes public keys at `http://auth:4001/.well-known/jwks.json`. Verifying services (`core-api`, `chat`, `voice`) fetch and cache these public keys. They never talk through `core-api` to authenticate users.
 3. **Domain Event Stream (`zenuxs.events`)**:
-   Asynchronous integration is decoupled via Redis Streams. When a user registers in `auth-service`, an `auth.user.registered` event is published to `zenuxs.events`. `core-api` consumes this stream in the background to automatically create the initial profile record in `zenuxs_core`.
+   Asynchronous integration is decoupled via Redis Streams. When a user registers in `auth-service`, an `auth.user.registered` event is published to `zenuxs.events`. `core-api` consumes this stream in the background to automatically create the initial profile record in `nebron_core`.
 
 ---
 

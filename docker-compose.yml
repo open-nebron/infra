@@ -156,7 +156,7 @@ services:
       - "4001:4001"
     environment:
       PORT: 4001
-      MONGO_URL: mongodb://mongo:27017/zenuxs_auth
+      MONGO_URL: mongodb://mongo:27017/nebron_auth
       REDIS_URL: redis://redis:6379
       NODE_ENV: ${NODE_ENV:-development}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:8081}
@@ -186,7 +186,7 @@ services:
       - "4002:4002"
     environment:
       PORT: 4002
-      MONGO_URL: mongodb://mongo:27017/zenuxs_core
+      MONGO_URL: mongodb://mongo:27017/nebron_core
       REDIS_URL: redis://redis:6379
       AUTH_JWKS_URL: http://auth:4001/.well-known/jwks.json
       R2_ENDPOINT: http://minio:9000

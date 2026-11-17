@@ -1,22 +1,22 @@
-  // MongoDB initialization script for Zenuxs
+  // MongoDB initialization script for Nebron
 // Idempotent: safe to run multiple times.
 
-// 1. Initialize zenuxs_auth
-const authDb = db.getSiblingDB('zenuxs_auth');
+// 1. Initialize nebron_auth
+const authDb = db.getSiblingDB('nebron_auth');
 
 // Create dedicated user for auth if not exists
 try {
   authDb.createUser({
-    user: 'zenuxs_auth_user',
+    user: 'nebron_auth_user',
     pwd: 'auth_password_dev',
-    roles: [{ role: 'readWrite', db: 'zenuxs_auth' }]
+    roles: [{ role: 'readWrite', db: 'nebron_auth' }]
   });
-  print('[init-mongo] Created user zenuxs_auth_user');
+  print('[init-mongo] Created user nebron_auth_user');
 } catch (e) {
   if (e.code === 51003 || (e.message && e.message.includes('already exists'))) {
-    print('[init-mongo] User zenuxs_auth_user already exists');
+    print('[init-mongo] User nebron_auth_user already exists');
   } else {
-    print('[init-mongo] Notice on createUser zenuxs_auth_user: ' + e.message);
+    print('[init-mongo] Notice on createUser nebron_auth_user: ' + e.message);
   }
 }
 
@@ -28,64 +28,64 @@ authDb.sessions.createIndex({ refreshTokenHash: 1 }, { unique: true, background:
 authDb.sessions.createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0, background: true });
 authDb.sessions.createIndex({ userId: 1 }, { background: true });
 authDb.sessions.createIndex({ familyId: 1 }, { background: true });
-print('[init-mongo] Indexes created for zenuxs_auth');
+print('[init-mongo] Indexes created for nebron_auth');
 
-// 2. Initialize zenuxs_core
-const coreDb = db.getSiblingDB('zenuxs_core');
+// 2. Initialize nebron_core
+const coreDb = db.getSiblingDB('nebron_core');
 
 // Create dedicated user for core if not exists
 try {
   coreDb.createUser({
-    user: 'zenuxs_core_user',
+    user: 'nebron_core_user',
     pwd: 'core_password_dev',
-    roles: [{ role: 'readWrite', db: 'zenuxs_core' }]
+    roles: [{ role: 'readWrite', db: 'nebron_core' }]
   });
-  print('[init-mongo] Created user zenuxs_core_user');
+  print('[init-mongo] Created user nebron_core_user');
 } catch (e) {
   if (e.code === 51003 || (e.message && e.message.includes('already exists'))) {
-    print('[init-mongo] User zenuxs_core_user already exists');
+    print('[init-mongo] User nebron_core_user already exists');
   } else {
-    print('[init-mongo] Notice on createUser zenuxs_core_user: ' + e.message);
+    print('[init-mongo] Notice on createUser nebron_core_user: ' + e.message);
   }
 }
 
 // Create unique indexes on profiles.userId and profiles.username
 coreDb.profiles.createIndex({ userId: 1 }, { unique: true, background: true, name: 'idx_profiles_userId_unique' });
 coreDb.profiles.createIndex({ username: 1 }, { unique: true, background: true, name: 'idx_profiles_username_unique' });
-print('[init-mongo] Indexes created for zenuxs_core');
+print('[init-mongo] Indexes created for nebron_core');
 
-// 3. Create role 'zenuxs' in admin with readWrite on both, dbAdmin only on these two
+// 3. Create role 'nebron' in admin with readWrite on both, dbAdmin only on these two
 const adminDb = db.getSiblingDB('admin');
 try {
   adminDb.createRole({
-    role: 'zenuxs',
+    role: 'nebron',
     privileges: [],
     roles: [
-      { role: 'readWrite', db: 'zenuxs_auth' },
-      { role: 'dbAdmin', db: 'zenuxs_auth' },
-      { role: 'readWrite', db: 'zenuxs_core' },
-      { role: 'dbAdmin', db: 'zenuxs_core' }
+      { role: 'readWrite', db: 'nebron_auth' },
+      { role: 'dbAdmin', db: 'nebron_auth' },
+      { role: 'readWrite', db: 'nebron_core' },
+      { role: 'dbAdmin', db: 'nebron_core' }
     ]
   });
-  print('[init-mongo] Created role zenuxs');
+  print('[init-mongo] Created role nebron');
 } catch (e) {
   if (e.code === 51002 || (e.message && e.message.includes('already exists'))) {
-    print('[init-mongo] Role zenuxs already exists, updating...');
+    print('[init-mongo] Role nebron already exists, updating...');
     try {
-      adminDb.updateRole('zenuxs', {
+      adminDb.updateRole('nebron', {
         roles: [
-          { role: 'readWrite', db: 'zenuxs_auth' },
-          { role: 'dbAdmin', db: 'zenuxs_auth' },
-          { role: 'readWrite', db: 'zenuxs_core' },
-          { role: 'dbAdmin', db: 'zenuxs_core' }
+          { role: 'readWrite', db: 'nebron_auth' },
+          { role: 'dbAdmin', db: 'nebron_auth' },
+          { role: 'readWrite', db: 'nebron_core' },
+          { role: 'dbAdmin', db: 'nebron_core' }
         ]
       });
-      print('[init-mongo] Updated role zenuxs');
+      print('[init-mongo] Updated role nebron');
     } catch (updateErr) {
-      print('[init-mongo] Notice on updateRole zenuxs: ' + updateErr.message);
+      print('[init-mongo] Notice on updateRole nebron: ' + updateErr.message);
     }
   } else {
-    print('[init-mongo] Notice on createRole zenuxs: ' + e.message);
+    print('[init-mongo] Notice on createRole nebron: ' + e.message);
   }
 }
 
