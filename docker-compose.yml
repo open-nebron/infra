@@ -226,10 +226,10 @@ services:
     environment:
       PORT: 4003
       SCYLLA_HOSTS: scylla:9042
-      SCYLLA_KEYSPACE: zenuxs
+      SCYLLA_KEYSPACE: nebron
       REDIS_URL: redis://redis:6379
       AUTH_JWKS_URL: http://auth:4001/.well-known/jwks.json
-      EVENTS_STREAM: zenuxs.events
+      EVENTS_STREAM: nebron.events
       NODE_ENV: ${NODE_ENV:-development}
     depends_on:
       scylla:
