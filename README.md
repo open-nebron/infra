@@ -1,6 +1,6 @@
-# Zenuxs Infrastructure (`infra`)
+# Nebron Infrastructure (`infra`)
 
-Local Docker Compose orchestration and infrastructure automation for the Zenuxs polyrepo.
+Local Docker Compose orchestration and infrastructure automation for the Nebron polyrepo.
 
 ---
 
@@ -31,7 +31,7 @@ Ensure your host machine satisfies the following minimum requirements:
 
 ## 3. Quickstart
 
-Get the entire Zenuxs ecosystem up, running, and verified in under 5 minutes:
+Get the entire Nebron ecosystem up, running, and verified in under 5 minutes:
 
 ```bash
 # 1. Enter the infra directory
@@ -99,7 +99,7 @@ All service endpoints and host ports are documented in detail in [docs/ports.md]
 | Service | Port | Container Name | Purpose |
 |---|---|---|---|
 | **mongo** | `27017` | `mongo` | Core + auth MongoDB database |
-| **redis** | `6379` | `redis` | Rate limits, pub/sub, presence, and `zenuxs.events` |
+| **redis** | `6379` | `redis` | Rate limits, pub/sub, presence, and `nebron.events` |
 | **scylla** | `9042` | `scylla` | ScyllaDB CQL chat message store |
 | **minio S3** | `9000` | `minio` | S3 API endpoint (dev substitute for Cloudflare R2) |
 | **minio UI** | `9001` | `minio` | MinIO web console (`minioadmin` / `minioadmin`) |
@@ -123,7 +123,7 @@ All service endpoints and host ports are documented in detail in [docs/ports.md]
                            |                         |
                            v                         v
 +------------------------------------------------------------------------------------+
-| Docker Network: infra_zenuxs                                                       |
+| Docker Network: infra_nebron                                                        |
 |                                                                                    |
 |   +-------------------+    HTTP JWKS     +-------------------+                     |
 |   |   auth-service    |<=================|     core-api      |                     |
@@ -131,7 +131,7 @@ All service endpoints and host ports are documented in detail in [docs/ports.md]
 |   +----+---------+----+                  +----+---------+----+                     |
 |        |         |                            |         |                          |
 |        |         |  Redis Stream:             |         |                          |
-|        |         |  zenuxs.events             |         |                          |
+|        |         |  nebron.events             |         |                          |
 |        |         +-------------------+        |         |                          |
 |        |                             v        |         |                          |
 |        |                         +------------+---+     |                          |
@@ -162,11 +162,11 @@ All service endpoints and host ports are documented in detail in [docs/ports.md]
 
 ### How Services Find Each Other
 1. **Container DNS Resolution**:
-   All containers attach to the shared `zenuxs` bridge network (`infra_zenuxs`). Docker's embedded DNS server resolves container names automatically (e.g. `http://auth:4001`, `mongodb://mongo:27017`, `redis://redis:6379`, `http://minio:9000`).
+   All containers attach to the shared `nebron` bridge network (`infra_nebron`). Docker's embedded DNS server resolves container names automatically (e.g. `http://auth:4001`, `mongodb://mongo:27017`, `redis://redis:6379`, `http://minio:9000`).
 2. **Asymmetric Key Verification (JWKS)**:
    `auth-service` generates RS256 RSA keypairs and exposes public keys at `http://auth:4001/.well-known/jwks.json`. Verifying services (`core-api`, `chat`, `voice`) fetch and cache these public keys. They never talk through `core-api` to authenticate users.
-3. **Domain Event Stream (`zenuxs.events`)**:
-   Asynchronous integration is decoupled via Redis Streams. When a user registers in `auth-service`, an `auth.user.registered` event is published to `zenuxs.events`. `core-api` consumes this stream in the background to automatically create the initial profile record in `nebron_core`.
+3. **Domain Event Stream (`nebron.events`)**:
+   Asynchronous integration is decoupled via Redis Streams. When a user registers in `auth-service`, an `auth.user.registered` event is published to `nebron.events`. `core-api` consumes this stream in the background to automatically create the initial profile record in `nebron_core`.
 
 ---
 

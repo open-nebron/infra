@@ -1,13 +1,13 @@
--- ScyllaDB Keyspace and Table Initialization for Zenuxs
+-- ScyllaDB Keyspace and Table Initialization for Nebron
 -- Idempotent: safe to run multiple times.
 
-CREATE KEYSPACE IF NOT EXISTS zenuxs
+CREATE KEYSPACE IF NOT EXISTS nebron
 WITH replication = {
   'class': 'SimpleStrategy',
   'replication_factor': 1
 };
 
-USE zenuxs;
+USE nebron;
 
 -- 1. Conversations table
 CREATE TABLE IF NOT EXISTS conversations (

@@ -8,7 +8,7 @@ if [ -f "./wait-for.sh" ] && [ -x "./wait-for.sh" ]; then
 fi
 
 echo "========================================="
-echo "   Zenuxs Polyrepo Verification Suite    "
+echo "   Nebron Polyrepo Verification Suite    "
 echo "========================================="
 
 FAIL_COUNT=0
@@ -47,7 +47,7 @@ fi
 # Step 3: Register a test user on auth-service
 echo "[verify] Step 3: Registering test user on auth-service..."
 TEST_ID="$(date +%s)_$RANDOM"
-TEST_EMAIL="smoke_${TEST_ID}@zenuxs.com"
+TEST_EMAIL="smoke_${TEST_ID}@nebron.com"
 TEST_PASSWORD="SecurePassword123!"
 
 REG_HTTP_CODE=$(curl -s -o /tmp/reg_res.json -w "%{http_code}" -X POST http://localhost:4001/auth/register \

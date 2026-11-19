@@ -16,7 +16,7 @@ services:
       start_period: 5s
     restart: unless-stopped
     networks:
-      - zenuxs
+      - nebron
 
   mongo-init:
     image: mongo:7
@@ -30,7 +30,7 @@ services:
     command: mongosh mongodb://mongo:27017/ --file /docker-entrypoint-initdb.d/init.js
     restart: "no"
     networks:
-      - zenuxs
+      - nebron
 
   redis:
     image: redis:7-alpine
@@ -49,7 +49,7 @@ services:
       start_period: 3s
     restart: unless-stopped
     networks:
-      - zenuxs
+      - nebron
 
   scylla:
     image: scylladb/scylla:5.4
@@ -68,7 +68,7 @@ services:
       start_period: 60s
     restart: unless-stopped
     networks:
-      - zenuxs
+      - nebron
 
   scylla-init:
     image: scylladb/scylla:5.4
@@ -83,7 +83,7 @@ services:
     command: ["until cqlsh scylla -f /init.cql; do echo 'Waiting for Scylla CQL port 9042...'; sleep 2; done"]
     restart: "no"
     networks:
-      - zenuxs
+      - nebron
 
   minio:
     image: minio/minio:latest
@@ -106,7 +106,7 @@ services:
       start_period: 5s
     restart: unless-stopped
     networks:
-      - zenuxs
+      - nebron
 
   minio-init:
     image: minio/mc:latest
@@ -122,10 +122,10 @@ services:
       MINIO_ENDPOINT: http://minio:9000
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
-      R2_BUCKET: ${R2_BUCKET:-zenuxs-media}
+      R2_BUCKET: ${R2_BUCKET:-nebron-media}
     restart: "no"
     networks:
-      - zenuxs
+      - nebron
 
   livekit:
     image: livekit/livekit-server:latest
@@ -146,7 +146,7 @@ services:
       start_period: 3s
     restart: unless-stopped
     networks:
-      - zenuxs
+      - nebron
 
   auth:
     build: ../auth-service
@@ -160,6 +160,7 @@ services:
       REDIS_URL: redis://redis:6379
       NODE_ENV: ${NODE_ENV:-development}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:8081}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-dev-internal-token-change-me}
       ACCESS_TOKEN_TTL_SECONDS: ${JWT_TTL_SECONDS:-900}
     depends_on:
       mongo:
@@ -176,7 +177,7 @@ services:
       start_period: 5s
     restart: unless-stopped
     networks:
-      - zenuxs
+      - nebron
 
   core:
     build: ../core-api
@@ -190,12 +191,13 @@ services:
       REDIS_URL: redis://redis:6379
       AUTH_JWKS_URL: http://auth:4001/.well-known/jwks.json
       R2_ENDPOINT: http://minio:9000
-      R2_BUCKET: ${R2_BUCKET:-zenuxs-media}
+      R2_BUCKET: ${R2_BUCKET:-nebron-media}
       R2_ACCESS_KEY_ID: ${MINIO_ROOT_USER:-minioadmin}
       R2_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
-      R2_PUBLIC_BASE_URL: http://localhost:9000/${R2_BUCKET:-zenuxs-media}
+      R2_PUBLIC_BASE_URL: http://localhost:9000/${R2_BUCKET:-nebron-media}
       NODE_ENV: ${NODE_ENV:-development}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:8081}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-dev-internal-token-change-me}
     depends_on:
       mongo:
         condition: service_healthy
@@ -213,7 +215,7 @@ services:
       start_period: 5s
     restart: unless-stopped
     networks:
-      - zenuxs
+      - nebron
 
   chat:
     build:
@@ -231,6 +233,7 @@ services:
       AUTH_JWKS_URL: http://auth:4001/.well-known/jwks.json
       EVENTS_STREAM: nebron.events
       NODE_ENV: ${NODE_ENV:-development}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-dev-internal-token-change-me}
     depends_on:
       scylla:
         condition: service_healthy
@@ -248,7 +251,7 @@ services:
       start_period: 5s
     restart: unless-stopped
     networks:
-      - zenuxs
+      - nebron
 
   voice:
     build: ../voice-service
@@ -277,7 +280,7 @@ services:
       start_period: 5s
     restart: unless-stopped
     networks:
-      - zenuxs
+      - nebron
 
 volumes:
   mongo_data:
@@ -286,5 +289,5 @@ volumes:
   minio_data:
 
 networks:
-  zenuxs:
+  nebron:
     driver: bridge

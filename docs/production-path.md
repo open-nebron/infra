@@ -32,10 +32,10 @@ Each microservice repository owns its continuous integration and delivery lifecy
 2. **Automated Testing**: Service GitHub Actions workflow runs linter, TypeScript build, and Vitest suite.
 3. **Container Build**: Multi-stage Dockerfile builds the minimal production runner image.
 4. **Registry Push**: Images are tagged by git commit SHA and semantic version, then pushed to GitHub Container Registry:
-   - `ghcr.io/zenuxs/auth-service:<sha>`
-   - `ghcr.io/zenuxs/core-api:<sha>`
-   - `ghcr.io/zenuxs/chat-service:<sha>`
-   - `ghcr.io/zenuxs/voice-service:<sha>`
+   - `ghcr.io/nebron/auth-service:<sha>`
+   - `ghcr.io/nebron/core-api:<sha>`
+   - `ghcr.io/nebron/chat-service:<sha>`
+   - `ghcr.io/nebron/voice-service:<sha>`
 5. **GitOps Deployment**: Kubernetes cluster synchronizes manifests (via ArgoCD or Flux) referencing the newly built image digest.
 
 ---

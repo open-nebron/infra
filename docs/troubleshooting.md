@@ -1,6 +1,6 @@
 # Troubleshooting Guide
 
-This guide covers common issues encountered when managing local development environments with Docker Compose in the Zenuxs polyrepo.
+This guide covers common issues encountered when managing local development environments with Docker Compose in the Nebron polyrepo.
 
 ---
 
@@ -81,13 +81,13 @@ For example, change `"27017:27017"` to `"27018:27017"`. Note that any direct hos
 
 ---
 
-## 4. MinIO Bucket Missing (`zenuxs-media`)
+## 4. MinIO Bucket Missing (`nebron-media`)
 
 ### Symptoms
 Uploading avatars or banners fails with: `NoSuchBucket: The specified bucket does not exist`.
 
 ### Cause
-The initialization container `minio-init` runs only once to create the `zenuxs-media` bucket and configure anonymous download policies for avatars. If MinIO's volume was wiped or corrupted without re-running initialization, the bucket may be absent.
+The initialization container `minio-init` runs only once to create the `nebron-media` bucket and configure anonymous download policies for avatars. If MinIO's volume was wiped or corrupted without re-running initialization, the bucket may be absent.
 
 ### Resolution
 Re-run the initialization job directly:
@@ -138,7 +138,7 @@ You can open an interactive shell or CLI tool inside any running container:
   ```
 - **MinIO MC client**:
   ```bash
-  docker compose exec minio-init mc ls local/zenuxs-media
+  docker compose exec minio-init mc ls local/nebron-media
   ```
 - **Application container shell**:
   ```bash

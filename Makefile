@@ -5,7 +5,7 @@
         ps dev-auth dev-core dev-chat verify reset
 
 help:
-	@echo "Zenuxs Local Infrastructure Orchestration"
+	@echo "Nebron Local Infrastructure Orchestration"
 	@echo ""
 	@echo "Usage: make <target>"
 	@echo ""
