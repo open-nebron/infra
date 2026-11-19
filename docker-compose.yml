@@ -234,6 +234,7 @@ services:
       EVENTS_STREAM: nebron.events
       NODE_ENV: ${NODE_ENV:-development}
       INTERNAL_TOKEN: ${INTERNAL_TOKEN:-dev-internal-token-change-me}
+      CORE_URL: http://core:4002
     depends_on:
       scylla:
         condition: service_healthy
