@@ -219,8 +219,7 @@ services:
 
   chat:
     build:
-      context: ..
-      dockerfile: chat-service/Dockerfile
+      context: ../chat-service
     profiles: [chat]
     container_name: chat
     ports:
