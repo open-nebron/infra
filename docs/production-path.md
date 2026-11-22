@@ -47,5 +47,6 @@ When moving from local dev to production:
 - [ ] **Cryptographic Keys**: Ensure `JWT_PRIVATE_KEY_PATH` and `JWT_PUBLIC_KEY_PATH` point to secure, rotated 2048-bit or 4096-bit RSA keys (never use auto-generated dev keys).
 - [ ] **TLS Ingress**: Terminate TLS at the ingress controller (Cloudflare, AWS ALB, NGINX Ingress) with Let's Encrypt or custom SSL certificates.
 - [ ] **Persistent Storage & Backups**: Configure point-in-time recovery (PITR) on MongoDB Atlas and ScyllaDB Cloud.
+- [ ] **LiveKit Cloud Webhook Delivery**: LiveKit Cloud requires a publicly accessible HTTPS endpoint (e.g. `https://api.nebron.com/webhooks/livekit` or `https://voice.nebron.com/webhooks/livekit`) with valid public TLS certificates. In local development Docker Compose, webhooks use internal Docker network resolution (`http://voice:4004/webhooks/livekit`), but in staging and production, configure public webhook URLs in the LiveKit Cloud console and verify JWT webhook signatures with `LIVEKIT_API_KEY` and `LIVEKIT_API_SECRET`.
 - [ ] **Observability**: Export OpenTelemetry traces and Prometheus metrics to Datadog, Grafana Cloud, or New Relic.
 - [ ] **Rate Limiting & DDoS**: Enable Cloudflare WAF and enforce Redis-backed distributed rate limits across API gateways.

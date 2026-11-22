@@ -17,7 +17,7 @@ All microservices and backing infrastructure services in the Nebron local develo
 | **auth** | `4001` | `auth` | HTTP | Auth API service (registration, login, refresh, JWKS, identity) |
 | **core** | `4002` | `core` | HTTP | Core API service (profiles, preferences, metadata, media uploads) |
 | **chat** | `4003` | `chat` | HTTP/WS | Chat API & real-time messaging WebSocket service |
-| **voice** | `4004` | `voice` | HTTP | Voice room management and audio control plane |
+| **voice** | `4004` | `voice` | HTTP | Voice control plane |
 
 ## Client Access Architecture
 

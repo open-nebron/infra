@@ -196,6 +196,7 @@ All service endpoints and host ports are documented in detail in [docs/ports.md]
 | `make dev-auth` | Start `auth-service` in foreground dev mode with live source bind mounts |
 | `make dev-core` | Start `core-api` in foreground dev mode with live source bind mounts |
 | `make dev-chat` | Start `chat-service` in foreground dev mode with live source bind mounts |
+| `make dev-voice` | Start `voice-service` in foreground dev mode with live source bind mounts |
 | `make verify` | Run automated end-to-end smoke tests and integration assertions |
 | `make reset` | Tear down all containers, purge volumes, and clean docker build cache |
 

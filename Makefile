@@ -2,7 +2,7 @@
 .PHONY: help up-all up-infra up-auth up-core up-chat up-voice up-messaging \
         down down-auth down-core down-chat down-voice \
         logs logs-auth logs-core logs-chat logs-voice \
-        ps dev-auth dev-core dev-chat verify reset
+        ps dev-auth dev-core dev-chat dev-voice verify reset
 
 help:
 	@echo "Nebron Local Infrastructure Orchestration"
@@ -35,6 +35,7 @@ help:
 	@echo "  dev-auth      Start auth-service in foreground development mode with live source bind mounts"
 	@echo "  dev-core      Start core-api in foreground development mode with live source bind mounts"
 	@echo "  dev-chat      Start chat-service in foreground development mode with live source bind mounts"
+	@echo "  dev-voice     Start voice-service in foreground development mode with live source bind mounts"
 	@echo ""
 	@echo "Validation & Cleanup:"
 	@echo "  verify        Run automated end-to-end smoke tests and integration assertions"
@@ -74,7 +75,7 @@ down-chat:
 	docker compose --profile '*' rm -sf chat
 
 down-voice:
-	docker compose --profile '*' rm -sf voice
+	docker compose rm -sf voice
 
 logs:
 	docker compose --profile infra --profile auth --profile core --profile chat --profile voice logs -f --tail=100
@@ -89,7 +90,7 @@ logs-chat:
 	docker compose --profile '*' logs -f --tail=100 chat
 
 logs-voice:
-	docker compose --profile '*' logs -f --tail=100 voice
+	docker compose logs -f --tail=100 voice
 
 ps:
 	docker compose --profile infra --profile auth --profile core --profile chat --profile voice ps
@@ -102,6 +103,9 @@ dev-core:
 
 dev-chat:
 	docker compose --profile infra --profile auth --profile chat -f docker-compose.yml -f docker-compose.dev.yml up chat
+
+dev-voice:
+	docker compose --profile infra --profile auth --profile voice -f docker-compose.yml -f docker-compose.dev.yml up voice
 
 verify:
 	./scripts/verify.sh
