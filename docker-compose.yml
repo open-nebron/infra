@@ -195,6 +195,7 @@ services:
       REDIS_URL: redis://redis:6379
       AUTH_JWKS_URL: http://auth:4001/.well-known/jwks.json
       R2_ENDPOINT: http://minio:9000
+      R2_CLIENT_ENDPOINT: ${R2_CLIENT_ENDPOINT:-http://localhost:9000}
       R2_BUCKET: ${R2_BUCKET:-nebron-media}
       R2_ACCESS_KEY_ID: ${MINIO_ROOT_USER:-minioadmin}
       R2_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
