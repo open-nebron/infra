@@ -21,6 +21,9 @@ The local Docker Compose environment utilizes containerized stand-ins for cloud 
 | `livekit` | **LiveKit Cloud** (5k free min/month) | `LIVEKIT_URL=wss://...` | Global edge distribution, auto-scaling media SFUs, TURN relay |
 | `minio` | **Cloudflare R2** (Real Object Storage) | `R2_ENDPOINT=https://<id>.r2.cloudflarestorage.com` | Zero egress fees, global edge CDN, unlimited durable object storage |
 
+> [!NOTE]
+> `LIVEKIT_PUBLIC_URL` must be browser-reachable (`wss://` in prod). In dev, `ws://localhost:7880` works because the browser and the LiveKit container share the host's localhost.
+
 ---
 
 ## CI/CD Pipeline & Image Lifecycle
