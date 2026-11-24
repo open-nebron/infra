@@ -201,6 +201,20 @@ else
   record_result 8 "Chat WebSocket Echo & Receipt" "SKIP"
 fi
 
+# Step 9: Check Meilisearch health
+echo "[verify] Step 9: Checking Meilisearch health on port 7700..."
+MEILI_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:7700/health 2>/dev/null || true)
+if [ "$MEILI_STATUS" = "200" ]; then
+  record_result 9 "Meilisearch Health" "PASS"
+else
+  if "$WAIT_FOR" http://localhost:7700/health 15; then
+    record_result 9 "Meilisearch Health" "PASS"
+  else
+    record_result 9 "Meilisearch Health" "UNHEALTHY"
+    exit 1
+  fi
+fi
+
 echo ""
 echo "========================================="
 if [ "$FAIL_COUNT" -eq 0 ]; then

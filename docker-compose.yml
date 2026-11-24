@@ -149,6 +149,26 @@ services:
     networks:
       - nebron
 
+  meilisearch:
+    image: getmeili/meilisearch:v1.12
+    profiles: [infra]
+    container_name: meilisearch
+    ports:
+      - "7700:7700"
+    environment:
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:-masterKeyChangeMeInProd123}
+      MEILI_NO_ANALYTICS: "true"
+    volumes:
+      - meili_data:/meili_data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7700/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - nebron
+
   auth:
     build: ../auth-service
     profiles: [auth]
@@ -239,6 +259,8 @@ services:
       NODE_ENV: ${NODE_ENV:-development}
       INTERNAL_TOKEN: ${INTERNAL_TOKEN:-dev-internal-token-change-me}
       CORE_URL: http://core:4002
+      MEILI_HOST: http://meilisearch:7700
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:-masterKeyChangeMeInProd123}
     depends_on:
       scylla:
         condition: service_healthy
@@ -248,6 +270,8 @@ services:
         condition: service_healthy
       scylla-init:
         condition: service_completed_successfully
+      meilisearch:
+        condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:4003/health >/dev/null 2>&1 || exit 1"]
       interval: 10s
@@ -294,6 +318,7 @@ volumes:
   scylla_data:
   redis_data:
   minio_data:
+  meili_data:
   auth_secrets:
 
 networks:
