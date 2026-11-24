@@ -164,6 +164,8 @@ services:
       INTERNAL_TOKEN: ${INTERNAL_TOKEN:-dev-internal-token-change-me}
       ACCESS_TOKEN_TTL_SECONDS: ${JWT_TTL_SECONDS:-900}
       COOKIE_PATH: ${COOKIE_PATH:-/}
+    volumes:
+      - auth_secrets:/app/secrets
     depends_on:
       mongo:
         condition: service_healthy
@@ -280,7 +282,7 @@ services:
       auth:    { condition: service_healthy }
       livekit: { condition: service_healthy }
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:4004/health >/dev/null 2>&1 || exit 1"]
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:4004/health >/dev/null 2>&1 || exit 1"]
       interval: 15s
       retries: 5
     networks: [nebron]
@@ -290,6 +292,7 @@ volumes:
   scylla_data:
   redis_data:
   minio_data:
+  auth_secrets:
 
 networks:
   nebron:
