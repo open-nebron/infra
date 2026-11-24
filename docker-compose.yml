@@ -163,6 +163,7 @@ services:
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:8081}
       INTERNAL_TOKEN: ${INTERNAL_TOKEN:-dev-internal-token-change-me}
       ACCESS_TOKEN_TTL_SECONDS: ${JWT_TTL_SECONDS:-900}
+      COOKIE_PATH: ${COOKIE_PATH:-/}
     depends_on:
       mongo:
         condition: service_healthy
