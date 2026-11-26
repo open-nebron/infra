@@ -5,4 +5,5 @@ mc mb -p local/"$R2_BUCKET" || true
 mc anonymous set download local/"$R2_BUCKET"/users || true
 mc anonymous set download local/"$R2_BUCKET"/posts || true
 mc anonymous set download local/"$R2_BUCKET"/stories || true
+mc anonymous set download local/"$R2_BUCKET"/reels || true
 echo "minio ready"
