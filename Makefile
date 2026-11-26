@@ -1,8 +1,8 @@
 .DEFAULT_GOAL := help
-.PHONY: help up-all up-infra up-auth up-core up-chat up-voice up-messaging \
-        down down-auth down-core down-chat down-voice \
-        logs logs-auth logs-core logs-chat logs-voice \
-        ps dev-auth dev-core dev-chat dev-voice verify reset
+.PHONY: help up-all up-infra up-auth up-core up-chat up-voice up-spaces up-messaging \
+        down down-auth down-core down-chat down-voice down-spaces \
+        logs logs-auth logs-core logs-chat logs-voice logs-spaces \
+        ps dev-auth dev-core dev-chat dev-voice dev-spaces verify reset
 
 help:
 	@echo "Nebron Local Infrastructure Orchestration"
@@ -42,7 +42,7 @@ help:
 	@echo "  reset         Wipe all containers, named volumes, and prune docker cache for a clean state"
 
 up-all:
-	docker compose --profile infra --profile auth --profile core --profile chat --profile voice up -d --build
+	docker compose --profile infra --profile auth --profile core --profile chat --profile voice --profile spaces up -d --build
 
 up-infra:
 	docker compose --profile infra up -d --build
@@ -59,11 +59,14 @@ up-chat:
 up-voice:
 	docker compose --profile infra --profile auth --profile voice up -d --build
 
+up-spaces:
+	docker compose --profile infra --profile auth --profile core --profile chat --profile voice --profile spaces up -d --build
+
 up-messaging:
 	docker compose --profile infra --profile auth --profile core --profile chat up -d --build
 
 down:
-	docker compose --profile infra --profile auth --profile core --profile chat --profile voice down
+	docker compose --profile infra --profile auth --profile core --profile chat --profile voice --profile spaces down
 
 down-auth:
 	docker compose --profile '*' rm -sf auth
@@ -77,8 +80,11 @@ down-chat:
 down-voice:
 	docker compose rm -sf voice
 
+down-spaces:
+	docker compose --profile '*' rm -sf spaces
+
 logs:
-	docker compose --profile infra --profile auth --profile core --profile chat --profile voice logs -f --tail=100
+	docker compose --profile infra --profile auth --profile core --profile chat --profile voice --profile spaces logs -f --tail=100
 
 logs-auth:
 	docker compose --profile '*' logs -f --tail=100 auth
@@ -92,8 +98,11 @@ logs-chat:
 logs-voice:
 	docker compose logs -f --tail=100 voice
 
+logs-spaces:
+	docker compose --profile '*' logs -f --tail=100 spaces
+
 ps:
-	docker compose --profile infra --profile auth --profile core --profile chat --profile voice ps
+	docker compose --profile infra --profile auth --profile core --profile chat --profile voice --profile spaces ps
 
 dev-auth:
 	docker compose --profile infra --profile auth -f docker-compose.yml -f docker-compose.dev.yml up auth
@@ -107,8 +116,11 @@ dev-chat:
 dev-voice:
 	docker compose --profile infra --profile auth --profile voice -f docker-compose.yml -f docker-compose.dev.yml up voice
 
+dev-spaces:
+	docker compose --profile infra --profile auth --profile core --profile chat --profile voice --profile spaces -f docker-compose.yml -f docker-compose.dev.yml up spaces
+
 verify:
 	./scripts/verify.sh
 
 reset:
-	docker compose --profile infra --profile auth --profile core --profile chat --profile voice down -v && docker system prune -f
+	docker compose --profile infra --profile auth --profile core --profile chat --profile voice --profile spaces down -v && docker system prune -f

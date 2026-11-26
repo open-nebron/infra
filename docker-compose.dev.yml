@@ -27,3 +27,10 @@ services:
     command: ["npm", "run", "start:dev"]
     volumes:
       - ../voice-service/src:/app/src
+  spaces:
+    build:
+      context: ../spaces-service
+      target: builder
+    command: ["npm", "run", "dev"]
+    volumes:
+      - ../spaces-service/src:/app/src

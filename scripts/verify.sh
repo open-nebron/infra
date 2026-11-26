@@ -215,6 +215,25 @@ else
   fi
 fi
 
+# Step 10: Check Spaces Service health and space + chat channel creation
+echo "[verify] Step 10: Checking spaces-service on port 4005..."
+SPACES_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:4005/health 2>/dev/null || true)
+if [ "$SPACES_STATUS" = "200" ] || "$WAIT_FOR" http://localhost:4005/health 30; then
+  SPACE_HTTP_CODE=$(curl -s -o /tmp/space_res.json -w "%{http_code}" -X POST http://localhost:4005/spaces \
+    -H "Authorization: Bearer $ACCESS_TOKEN" \
+    -H "Content-Type: application/json" \
+    -d "{\"name\":\"Smoke Space $TEST_ID\",\"description\":\"Smoke test space\"}")
+
+  if [ "$SPACE_HTTP_CODE" = "201" ] && grep -q "conversationId" /tmp/space_res.json; then
+    record_result 10 "Spaces Service Health & Provisioning" "PASS"
+  else
+    SPACE_ERR=$(cat /tmp/space_res.json 2>/dev/null || echo "Unknown error")
+    record_result 10 "Spaces Service Health & Provisioning" "HTTP $SPACE_HTTP_CODE: $SPACE_ERR"
+  fi
+else
+  record_result 10 "Spaces Service Health" "UNHEALTHY"
+fi
+
 echo ""
 echo "========================================="
 if [ "$FAIL_COUNT" -eq 0 ]; then

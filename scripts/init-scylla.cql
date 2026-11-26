@@ -19,6 +19,8 @@ CREATE TABLE IF NOT EXISTS conversations (
   owner_id     uuid,
   member_count int,
   member_ids   set<uuid>,
+  space_id     text,
+  channel_id   text,
   PRIMARY KEY (id)
 );
 
