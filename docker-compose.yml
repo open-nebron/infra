@@ -184,6 +184,8 @@ services:
       INTERNAL_TOKEN: ${INTERNAL_TOKEN:-dev-internal-token-change-me}
       ACCESS_TOKEN_TTL_SECONDS: ${JWT_TTL_SECONDS:-900}
       COOKIE_PATH: ${COOKIE_PATH:-/}
+      POSTHOG_API_KEY: ${POSTHOG_API_KEY:-}
+      POSTHOG_HOST: ${POSTHOG_HOST:-https://us.i.posthog.com}
     volumes:
       - auth_secrets:/app/secrets
     depends_on:
@@ -223,6 +225,8 @@ services:
       NODE_ENV: ${NODE_ENV:-development}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:8081}
       INTERNAL_TOKEN: ${INTERNAL_TOKEN:-dev-internal-token-change-me}
+      POSTHOG_API_KEY: ${POSTHOG_API_KEY:-}
+      POSTHOG_HOST: ${POSTHOG_HOST:-https://us.i.posthog.com}
     depends_on:
       mongo:
         condition: service_healthy
@@ -262,6 +266,8 @@ services:
       SPACES_URL: http://spaces:4005
       MEILI_HOST: http://meilisearch:7700
       MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:-masterKeyChangeMeInProd123}
+      POSTHOG_API_KEY: ${POSTHOG_API_KEY:-}
+      POSTHOG_HOST: ${POSTHOG_HOST:-https://us.i.posthog.com}
     depends_on:
       scylla:
         condition: service_healthy
@@ -304,6 +310,8 @@ services:
       SPACES_URL: http://spaces:4005
       INTERNAL_TOKEN: ${INTERNAL_TOKEN:-dev-internal-token-change-me}
       NODE_ENV: ${NODE_ENV:-development}
+      POSTHOG_API_KEY: ${POSTHOG_API_KEY:-}
+      POSTHOG_HOST: ${POSTHOG_HOST:-https://us.i.posthog.com}
     depends_on:
       scylla:  { condition: service_healthy }
       redis:   { condition: service_healthy }
