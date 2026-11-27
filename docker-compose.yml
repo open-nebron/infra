@@ -8,6 +8,10 @@ services:
     volumes:
       - mongo_data:/data/db
     command: [--bind_ip_all]
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
     healthcheck:
       test: ["CMD-SHELL", "mongosh --quiet --eval \"db.adminCommand('ping').ok\" || exit 1"]
       interval: 5s
