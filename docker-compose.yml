@@ -226,6 +226,8 @@ services:
       R2_ACCESS_KEY_ID: ${MINIO_ROOT_USER:-minioadmin}
       R2_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
       R2_PUBLIC_BASE_URL: http://localhost:9000/${R2_BUCKET:-nebron-media}
+      MEILI_HOST: http://meilisearch:7700
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:-masterKeyChangeMeInProd123}
       NODE_ENV: ${NODE_ENV:-development}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:8081}
       INTERNAL_TOKEN: ${INTERNAL_TOKEN:-dev-internal-token-change-me}
@@ -239,6 +241,8 @@ services:
       auth:
         condition: service_healthy
       minio:
+        condition: service_healthy
+      meilisearch:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:4002/health >/dev/null 2>&1 || exit 1"]
