@@ -231,6 +231,10 @@ services:
       NODE_ENV: ${NODE_ENV:-development}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:8081}
       INTERNAL_TOKEN: ${INTERNAL_TOKEN:-dev-internal-token-change-me}
+      AUTH_SERVICE_URL: http://auth:4001
+      CHAT_SERVICE_URL: http://chat:4003
+      VOICE_SERVICE_URL: http://voice:4004
+      SPACES_SERVICE_URL: http://spaces:4005
       POSTHOG_API_KEY: ${POSTHOG_API_KEY:-}
       POSTHOG_HOST: ${POSTHOG_HOST:-https://us.i.posthog.com}
     depends_on:
